@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#080b12" />
+  <meta name="description" content="Change26 Arcade — mini games for Telegram." />
+  <title>Change26 Arcade</title>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  <!-- Supabase client (publishable key only) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Top Bar: Change26 Header & Telegram User Profile -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo-badge">M</div>
+      <div class="brand-text">
+        <h2>Change26</h2>
+        <span class="sub-text">Earning Money Play Game</span>
+      </div>
+    </div>
+    <div class="coins-badge">
+      🪙 <span id="coin-txt">100</span>
+    </div>
+  </header>
+
+  <main class="app-content">
+    <section class="page-view wallet-page" id="page-wallet">
+      <h1 class="page-title">Wallet</h1>
+      <div class="wallet-card">
+        <p>Available balance</p>
+        <strong>🪙 <span id="wallet-coins">100</span></strong>
+        <span class="wallet-unit">Coins</span>
+      </div>
+      <div class="wallet-card pending-card">
+        <p>Unclaimed game rewards</p>
+        <strong>🪙 <span id="pending-coins">0</span></strong>
+        <button class="action-btn claim-btn" id="claim-reward" hidden>
+          Claim game reward
+        </button>
+        <p class="status-alert" id="wallet-status" role="status" aria-live="polite"></p>
+      </div>
+      <section class="content-card withdrawal-card">
+        <h2 class="section-title">Withdraw USDT (BEP20)</h2>
+        <p class="page-description">2,000 coins = 0.20 USDT. Minimum withdrawal: 2,000 coins.</p>
+        <form id="withdraw-form">
+          <label for="withdraw-coins">Coins to withdraw</label>
+          <input id="withdraw-coins" name="coins" type="number" min="2000" step="1"
+            inputmode="numeric" required />
+          <p class="withdraw-estimate">You will request <strong id="withdraw-usdt">0.2000 USDT</strong></p>
+          <label for="withdraw-address">USDT wallet address (BEP20)</label>
+          <input id="withdraw-address" name="address" type="text" minlength="42" maxlength="42"
+            pattern="0x[a-fA-F0-9]{40}" autocomplete="off" spellcheck="false"
+            placeholder="0x..." required />
+          <button class="action-btn withdraw-submit" id="withdraw-submit" type="submit">
+            Submit withdrawal request
+          </button>
+        </form>
+        <p class="status-alert" id="withdraw-status" role="status" aria-live="polite"></p>
+        <p class="wallet-note">Requests go to Supabase for manual review. Do not submit an exchange deposit address unless it supports BEP20.</p>
+      </section>
+      <p class="wallet-note">Coin totals and ad/game rewards currently come from this device and are not server-verified. Review every request manually before sending USDT.</p>
+    </section>
+
+    <section class="page-view game-page active" id="page-game">
+      <!-- Game Category Tabs -->
+      <nav class="game-tabs" aria-label="Game selection">
+        <button class="tab-btn active" onclick="switchGame('ttt', this)">❌⭕ Tic-Tac-Toe</button>
+        <button class="tab-btn" onclick="switchGame('coin', this)">🪙 Coin Flip</button>
+        <button class="tab-btn" onclick="switchGame('guess', this)">🔢 Guess Number</button>
+        <button class="tab-btn" onclick="switchGame('dice', this)">🎲 Lucky Dice</button>
+        <button class="tab-btn" onclick="switchGame('tap', this)">⚡ Tap Rush</button>
+        <button class="tab-btn" onclick="switchGame('memory', this)">🧠 Memory Match</button>
+        <button class="tab-btn" onclick="switchGame('rps', this)">✊ Rock Paper Scissors</button>
+        <button class="tab-btn" onclick="switchGame('math', this)">➕ Quick Math</button>
+        <span id="extra-game-tabs"></span>
+      </nav>
+
+      <!-- Main Game Arena -->
+      <div class="arena">
+
+    <!-- Game 1: Tic Tac Toe (Vs Smart AI) -->
+    <div class="game-view active" id="view-ttt">
+      <h3 class="game-title">Tic-Tac-Toe (Vs AI)</h3>
+      <div class="ttt-board" id="ttt-grid" aria-label="Tic-Tac-Toe board"></div>
+      <p class="status-alert" id="ttt-status" role="status" aria-live="polite">আপনার চাল (X)</p>
+      <button class="action-btn" onclick="resetTTT()">Restart Game</button>
+    </div>
+
+    <!-- Game 2: Coin Flip -->
+    <div class="game-view" id="view-coin">
+      <h3 class="game-title">Head or Tail</h3>
+      <div class="game-display-icon" id="coin-anim">🪙</div>
+      <div class="dual-btn-group">
+        <button class="action-btn" onclick="flipCoin('Head')">Head</button>
+        <button class="action-btn" onclick="flipCoin('Tail')">Tail</button>
+      </div>
+      <p class="status-alert" id="coin-status">অপশন পছন্দ করুন (Win = +20)</p>
+    </div>
+
+    <!-- Game 3: Guess Number -->
+    <div class="game-view" id="view-guess">
+      <h3 class="game-title">Guess Number (1 - 10)</h3>
+      <div class="input-group">
+        <input type="number" id="guess-input" min="1" max="10" step="1" inputmode="numeric" placeholder="?" aria-label="১ থেকে ১০-এর মধ্যে সংখ্যা" />
+      </div>
+      <button class="action-btn" onclick="checkGuess()">Check Guess</button>
+      <p class="status-alert" id="guess-status">১ থেকে ১০ এর মধ্যে সংখ্যা অনুমান করুন (Win = +30)</p>
+    </div>
+
+    <!-- Game 4: Lucky Dice -->
+    <div class="game-view" id="view-dice">
+      <h3 class="game-title">Lucky Dice Roll</h3>
+      <div class="game-display-icon" id="dice-face">🎲</div>
+      <button class="action-btn" onclick="rollDice()">Roll Dice</button>
+      <p class="status-alert" id="dice-status">ছক্কা (৬) পড়লে পাবেন +৫০ কয়েন!</p>
+    </div>
+
+    <!-- Game 5: Tap Rush -->
+    <div class="game-view" id="view-tap">
+      <h3 class="game-title">৫ সেকেন্ডে ট্যাপ রাশ</h3>
+      <h2 id="tap-timer" class="highlight-timer">Time: 5s</h2>
+      <div class="tap-counter">ট্যাপ সংখ্যা: <span id="tap-count">0</span></div>
+      <button class="action-btn tap-large" id="tap-btn" onclick="handleTap()">TAP HERE!</button>
+      <p class="status-alert" id="tap-status">শুরু করতে বোতামে ট্যাপ করুন!</p>
+    </div>
+
+    <!-- Game 6: Memory Match -->
+    <div class="game-view" id="view-memory">
+      <h3 class="game-title">Memory Match</h3>
+      <p class="game-instructions">সব matching emoji জোড়া খুঁজে বের করুন।</p>
+      <div class="memory-board" id="memory-board" aria-label="Memory Match board"></div>
+      <p class="status-alert" id="memory-status" role="status" aria-live="polite">
+        সব জোড়া মেলালে +60 coins পাবেন।
+      </p>
+      <button class="action-btn" id="memory-restart" onclick="startMemoryGame()">New Game</button>
+    </div>
+
+    <!-- Game 7: Rock Paper Scissors -->
+    <div class="game-view" id="view-rps">
+      <h3 class="game-title">Rock Paper Scissors</h3>
+      <div class="rps-options">
+        <button class="action-btn" onclick="playRps('rock')">✊ Rock</button>
+        <button class="action-btn" onclick="playRps('paper')">✋ Paper</button>
+        <button class="action-btn" onclick="playRps('scissors')">✌️ Scissors</button>
+      </div>
+      <p class="status-alert" id="rps-status" role="status" aria-live="polite">
+        জিতলে +15 coins পাবেন।
+      </p>
+    </div>
+
+    <!-- Game 8: Quick Math -->
+    <div class="game-view" id="view-math">
+      <h3 class="game-title">Quick Math Challenge</h3>
+      <p class="game-instructions" id="math-round">Round 1 of 5</p>
+      <div class="math-question" id="math-question" aria-live="polite"></div>
+      <div class="input-group">
+        <input type="number" id="math-answer" step="1" inputmode="numeric"
+          placeholder="?" aria-label="অংকের উত্তর" />
+      </div>
+      <button class="action-btn" id="math-submit" onclick="submitMathAnswer()">Submit Answer</button>
+      <p class="status-alert" id="math-status" role="status" aria-live="polite">
+        সঠিক উত্তরে +10 coins, মোট ৫টি প্রশ্ন।
+      </p>
+      <button class="action-btn" id="math-restart" onclick="startMathChallenge()" hidden>
+        Play Again
+      </button>
+    </div>
+
+    <div id="extra-game-views"></div>
+
+      </div>
+      <p class="status-alert interstitial-status" id="interstitial-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="page-view" id="page-task">
+      <h1 class="page-title">Tasks</h1>
+      <div class="content-card">
+        <h2 class="section-title">Reward video</h2>
+        <p class="page-description">Watch one video ad every 10 minutes to earn 100 coins.</p>
+        <button class="ad-btn" id="show-ad">
+          <span>🎬</span> Watch Video Ad (+100 Coins)
+        </button>
+        <p class="status-alert" id="ad-status" role="status" aria-live="polite"></p>
+        <p class="cooldown-text" id="ad-cooldown" aria-live="polite"></p>
+      </div>
+      <div class="content-card">
+        <h2 class="section-title">Sponsored tasks</h2>
+        <p class="page-description">Complete an available Adsgram task to earn coins.</p>
+        <div id="task-ad-slot"></div>
+        <p class="status-alert" id="task-status" role="status" aria-live="polite"></p>
+      </div>
+      <div class="content-card leaderboard-card">
+        <h2 class="section-title">Top 10 coin makers</h2>
+        <p class="page-description">Ranked by lifetime coins earned · live updates</p>
+        <ol class="leaderboard-list" id="leaderboard-list" aria-live="polite">
+          <li>Loading leaderboard...</li>
+        </ol>
+        <p class="status-alert" id="leaderboard-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="page-view" id="page-profile">
+      <h1 class="page-title">Profile</h1>
+      <div class="content-card profile-card">
+        <div class="avatar" id="avatar">U</div>
+        <div class="user-details">
+          <h2 id="u-name">Player</h2>
+          <p id="u-id">Telegram user</p>
+        </div>
+      </div>
+      <div class="content-card profile-balance">
+        <span>Current coin balance</span>
+        <strong>🪙 <span id="profile-coins">100</span></strong>
+      </div>
+      <button class="content-card profile-wallet-link" id="open-profile-wallet" type="button">
+        <span>👛 Wallet &amp; USDT withdrawal</span>
+        <strong aria-hidden="true">→</strong>
+      </button>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="bottom-nav-btn" data-page="wallet" aria-controls="page-wallet">
+      <span aria-hidden="true">👛</span><span>Wallet</span>
+    </button>
+    <button class="bottom-nav-btn active" data-page="game" aria-controls="page-game" aria-current="page">
+      <span aria-hidden="true">🎮</span><span>Game</span>
+    </button>
+    <button class="bottom-nav-btn" data-page="task" aria-controls="page-task">
+      <span aria-hidden="true">📋</span><span>Task</span>
+    </button>
+    <button class="bottom-nav-btn" data-page="profile" aria-controls="page-profile">
+      <span aria-hidden="true">👤</span><span>Profile</span>
+    </button>
+  </nav>
+
+  <!-- External Script -->
+  <script src="script.js"></script>
+</body>
+</html>
