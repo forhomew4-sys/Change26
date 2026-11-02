@@ -78,7 +78,7 @@ async function syncLeaderboard() {
   if (error) {
     console.error("Leaderboard update failed:", error);
     document.getElementById("leaderboard-status").textContent =
-      "Leaderboard sync হয়নি। Supabase setup ও connection যাচাই করুন।";
+      "Leaderboard sync হয়নি। Supabase setup ও connection যাচাই করুন।";
   }
 }
 
@@ -120,17 +120,17 @@ document.getElementById("claim-reward").addEventListener("click", () => {
   pendingCoins = 0;
   localStorage.setItem(pendingCoinsStorageKey, "0");
   renderPendingReward();
-  document.getElementById("wallet-status").textContent = "গেমের কয়েন আপনার balance-এ যোগ হয়েছে।";
+  document.getElementById("wallet-status").textContent = "গেমের কয়েন আপনার balance-এ যোগ হয়েছে।";
   notifySuccess();
 });
 
 renderCoinBalances();
 renderPendingReward();
 
-// --- 3. ADSGRAM INTEGRATION ---
+// --- 3. ADSGRAM INTEGRATION (Updated IDs) ---
 const ADSGRAM_BLOCKS = {
-  reward: "57548",
-  interstitial: "int-57549"
+  reward: "57602",
+  interstitial: "int-57603"
 };
 const AD_COOLDOWN_MS = 10 * 60 * 1000;
 const AdControllers = window.Adsgram
@@ -176,7 +176,7 @@ adButton.addEventListener("click", () => {
     return;
   }
   if (!AdControllers.reward) {
-    document.getElementById("ad-status").textContent = "Reward ad লোড হয়নি। পরে আবার চেষ্টা করুন।";
+    document.getElementById("ad-status").textContent = "Reward ad লোড হয়নি। পরে আবার চেষ্টা করুন।";
     return;
   }
   adButton.disabled = true;
@@ -184,17 +184,17 @@ adButton.addEventListener("click", () => {
   AdControllers.reward.show()
     .then(() => {
       if (!updateCoins(100)) {
-        document.getElementById("ad-status").textContent = "কয়েন যোগ করা যায়নি। আবার চেষ্টা করুন।";
+        document.getElementById("ad-status").textContent = "কয়েন যোগ করা যায়নি। আবার চেষ্টা করুন।";
         return;
       }
       localStorage.setItem(adCooldownStorageKey, String(Date.now() + AD_COOLDOWN_MS));
-      document.getElementById("ad-status").textContent = "সফল! ১০০ কয়েন যোগ হয়েছে।";
+      document.getElementById("ad-status").textContent = "সফল! ১০০ কয়েন যোগ হয়েছে।";
       renderAdCooldown();
       notifySuccess();
     })
     .catch((err) => {
       document.getElementById("ad-status").textContent =
-        "বিজ্ঞাপন দেখানো যায়নি। পরে আবার চেষ্টা করুন।";
+        "বিজ্ঞাপন দেখানো যায়নি। পরে আবার চেষ্টা করুন।";
       console.error(err);
     })
     .finally(() => {
@@ -208,12 +208,12 @@ const taskStatus = document.getElementById("task-status");
 if (tg?.initData && customElements.get("adsgram-task")) {
   const taskAd = document.createElement("adsgram-task");
   taskAd.id = "task-ad";
-  taskAd.dataset.blockId = "task-57550";
+  taskAd.dataset.blockId = "57604"; // Task Ad ID updated
   taskAd.addEventListener("reward", () => {
     if (updateCoins(50)) {
-      taskStatus.textContent = "Task সম্পন্ন! ৫০ কয়েন balance-এ যোগ হয়েছে।";
+      taskStatus.textContent = "Task সম্পন্ন! ৫০ কয়েন balance-এ যোগ হয়েছে।";
     } else {
-      taskStatus.textContent = "কয়েন যোগ করা যায়নি। পরে আবার চেষ্টা করুন।";
+      taskStatus.textContent = "কয়েন যোগ করা যায়নি। পরে আবার চেষ্টা করুন।";
     }
     notifySuccess();
   });
@@ -221,7 +221,7 @@ if (tg?.initData && customElements.get("adsgram-task")) {
     taskStatus.textContent = "এখন কোনো Task ad নেই। পরে আবার চেষ্টা করুন।";
   });
   taskAd.addEventListener("onError", (event) => {
-    taskStatus.textContent = "Task ad লোড করা যায়নি।";
+    taskStatus.textContent = "Task ad লোড করা যায়নি।";
     console.error("Adsgram task failed:", event.detail);
   });
   document.getElementById("task-ad-slot").appendChild(taskAd);
@@ -264,7 +264,7 @@ withdrawForm.addEventListener("submit", async (event) => {
     return;
   }
   if (!Number.isSafeInteger(amount) || amount < MIN_WITHDRAW_COINS || amount > coins) {
-    withdrawStatus.textContent = `কমপক্ষে ${MIN_WITHDRAW_COINS} coins এবং balance-এর বেশি নয়—এমন পরিমাণ দিন।`;
+    withdrawStatus.textContent = `কমপক্ষে ${MIN_WITHDRAW_COINS} coins এবং balance-এর বেশি নয়—এমন পরিমাণ দিন।`;
     return;
   }
   if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
@@ -272,7 +272,7 @@ withdrawForm.addEventListener("submit", async (event) => {
     return;
   }
   if (!supabaseClient) {
-    withdrawStatus.textContent = "Supabase client লোড হয়নি। ইন্টারনেট connection যাচাই করে আবার চেষ্টা করুন।";
+    withdrawStatus.textContent = "Supabase client লোড হয়নি। ইন্টারনেট connection যাচাই করে আবার চেষ্টা করুন।";
     return;
   }
 
@@ -291,14 +291,14 @@ withdrawForm.addEventListener("submit", async (event) => {
     if (error) throw error;
 
     withdrawStatus.textContent =
-      "Request Supabase-এ জমা হয়েছে; admin হাতে যাচাই করে payout করবে। Balance কেটে নেওয়া হয়নি।";
+      "Request Supabase-এ জমা হয়েছে; admin হাতে যাচাই করে payout করবে। Balance কেটে নেওয়া হয়নি।";
     notifySuccess();
   } catch (err) {
     console.error("Withdrawal request failed:", err);
     withdrawStatus.textContent =
       err?.code === "23505"
         ? "আপনার একটি request আগে থেকেই pending আছে। Admin review-এর জন্য অপেক্ষা করুন।"
-        : "Request জমা হয়নি। Supabase schema/policy ও connection যাচাই করুন।";
+        : "Request জমা হয়নি। Supabase schema/policy ও connection যাচাই করুন।";
     withdrawSubmit.disabled = false;
   }
 });
@@ -327,7 +327,7 @@ async function loadLeaderboard() {
   if (!supabaseClient) {
     leaderboardList.replaceChildren();
     const item = document.createElement("li");
-    item.textContent = "Supabase client লোড হয়নি।";
+    item.textContent = "Supabase client লোড হয়নি।";
     leaderboardList.appendChild(item);
     return;
   }
@@ -346,9 +346,9 @@ async function loadLeaderboard() {
     console.error("Leaderboard load failed:", err);
     leaderboardList.replaceChildren();
     const item = document.createElement("li");
-    item.textContent = "Supabase schema setup না হওয়া পর্যন্ত leaderboard unavailable.";
+    item.textContent = "Supabase schema setup না হওয়া পর্যন্ত leaderboard unavailable.";
     leaderboardList.appendChild(item);
-    leaderboardStatus.textContent = "Leaderboard লোড হয়নি। supabase-schema.sql চালানো হয়েছে কি না যাচাই করুন।";
+    leaderboardStatus.textContent = "Leaderboard লোড হয়নি। supabase-schema.sql চালানো হয়েছে কি না যাচাই করুন।";
   }
 }
 
@@ -367,7 +367,7 @@ if (supabaseClient) {
     })
     .subscribe((status) => {
       if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-        leaderboardStatus.textContent = "Leaderboard live update সংযুক্ত হয়নি। Supabase Realtime setup যাচাই করুন।";
+        leaderboardStatus.textContent = "Leaderboard live update সংযুক্ত হয়নি। Supabase Realtime setup যাচাই করুন।";
       }
     });
 }
@@ -381,12 +381,12 @@ function finishGameRound() {
 
   const interstitialStatus = document.getElementById("interstitial-status");
   if (!AdControllers.interstitial) {
-    interstitialStatus.textContent = "পরের গেমগুলো খেলার সময় interstitial ad দেখানো হবে।";
+    interstitialStatus.textContent = "পরের গেমগুলো খেলার সময় interstitial ad দেখানো হবে।";
     return;
   }
   interstitialStatus.textContent = "Interstitial ad লোড হচ্ছে...";
   AdControllers.interstitial.show().catch((err) => {
-    interstitialStatus.textContent = "এই মুহূর্তে interstitial ad পাওয়া যায়নি।";
+    interstitialStatus.textContent = "এই মুহূর্তে interstitial ad পাওয়া যায়নি।";
     console.error("Adsgram interstitial failed:", err);
   });
 }
@@ -424,9 +424,9 @@ function switchGame(gameId, buttonElement) {
 // --- 4B. EXTRA MINI GAMES (20 GAMES TOTAL) ---
 const extraGames = [
   { id: "color-pick", title: "🎨 Color Pick", description: "লক্ষ্য রঙটি বেছে নিন।", type: "color" },
-  { id: "odd-even", title: "🔢 Odd or Even", description: "সংখ্যাটি জোড়, নাকি বিজোড়?", type: "odd-even" },
-  { id: "high-low", title: "🃏 Higher or Lower", description: "পরের কার্ডটি বড় হবে নাকি ছোট?", type: "high-low" },
-  { id: "word-scramble", title: "🔤 Word Scramble", description: "এলোমেলো অক্ষর সাজিয়ে শব্দটি লিখুন।", type: "word-scramble" },
+  { id: "odd-even", title: "🔢 Odd or Even", description: "সংখ্যাটি জোড়, নাকি বিজোড়?", type: "odd-even" },
+  { id: "high-low", title: "🃏 Higher or Lower", description: "পরের কার্ডটি বড় হবে নাকি ছোট?", type: "high-low" },
+  { id: "word-scramble", title: "🔤 Word Scramble", description: "এলোমেলো অক্ষর সাজিয়ে শব্দটি লিখুন।", type: "word-scramble" },
   { id: "reaction-test", title: "⚡ Reaction Test", description: "সবুজ হলে যত দ্রুত পারেন চাপ দিন।", type: "reaction" },
   { id: "sequence-memory", title: "🧠 Number Sequence", description: "দেখানো সংখ্যার ক্রম মনে রেখে লিখুন।", type: "sequence" },
   { id: "quick-quiz", title: "❓ Quick Quiz", description: "প্রশ্নের সঠিক উত্তর বেছে নিন।", type: "quiz" },
@@ -449,9 +449,9 @@ const scrambledWords = ["PLANET", "GARDEN", "POCKET", "BRIDGE", "ORANGE", "STREA
 const guessWords = ["APPLE", "TIGER", "MANGO", "CLOUD", "SHEEP", "BREAD"];
 const quizQuestions = [
   { question: "লাল গ্রহ কোনটি?", answer: "মঙ্গল", options: ["মঙ্গল", "শুক্র", "বৃহস্পতি"] },
-  { question: "এক সপ্তাহে কয় দিন?", answer: "৭", options: ["৫", "৬", "৭"] },
-  { question: "পানির রাসায়নিক সংকেত কী?", answer: "H₂O", options: ["CO₂", "H₂O", "O₂"] },
-  { question: "বাংলাদেশের জাতীয় ফুল কোনটি?", answer: "শাপলা", options: ["গোলাপ", "শাপলা", "জবা"] }
+  { question: "এক সপ্তাহে কয় দিন?", answer: "৭", options: ["৫", "৬", "৭"] },
+  { question: "পানির রাসায়নিক সংকেত কী?", answer: "H₂O", options: ["CO₂", "H₂O", "O₂"] },
+  { question: "বাংলাদেশের জাতীয় ফুল কোনটি?", answer: "শাপলা", options: ["গোলাপ", "শাপলা", "জবা"] }
 ];
 const shapeOptions = ["🔷", "🔺", "⭐", "❤️"];
 
@@ -580,15 +580,15 @@ function startExtraGame(gameId) {
       })), (choice) => finishExtraGame(
         gameId,
         choice === target.name,
-        choice === target.name ? "সঠিক রঙ!" : `ভুল হয়েছে। সঠিক রঙ ছিল ${target.name}।`
+        choice === target.name ? "সঠিক রঙ!" : `ভুল হয়েছে। সঠিক রঙ ছিল ${target.name}।`
       ));
       break;
     }
     case "odd-even": {
       const number = Math.floor(Math.random() * 99) + 1;
-      const answer = number % 2 === 0 ? "জোড়" : "বিজোড়";
+      const answer = number % 2 === 0 ? "জোড়" : "বিজোড়";
       state.prompt.textContent = `সংখ্যা: ${number}`;
-      addChoiceButtons(["জোড়", "বিজোড়"].map((value) => ({ label: value, value })),
+      addChoiceButtons(["জোড়", "বিজোড়"].map((value) => ({ label: value, value })),
         (choice) => finishExtraGame(gameId, choice === answer,
           choice === answer ? "একদম ঠিক!" : `ভুল। সংখ্যাটি ${answer} ছিল।`));
       break;
@@ -711,7 +711,7 @@ function startExtraGame(gameId) {
         )
       ].sort(() => Math.random() - 0.5);
       state.reward = 15;
-      state.prompt.textContent = `${symbols.join(" ")}\n\n${target} কয়টি আছে?`;
+      state.prompt.textContent = `${symbols.join(" ")}\n\n${target} কয়টি আছে?`;
       addChoiceButtons([1, 2, 3, 4, 5].map((value) => ({ label: String(value), value })),
         (choice) => finishExtraGame(gameId, Number(choice) === answer,
           Number(choice) === answer ? "সঠিক গুনেছেন!" : `ভুল। ${target} ছিল ${answer}টি।`));
@@ -775,7 +775,7 @@ function playerMove(i) {
   }
   if (!tttBoard.includes("")) {
     renderTTT();
-    document.getElementById("ttt-status").innerText = "ম্যাচ ড্র হয়েছে!";
+    document.getElementById("ttt-status").innerText = "ম্যাচ ড্র হয়েছে!";
     finishGameRound();
     return;
   }
@@ -815,7 +815,7 @@ function aiMove() {
   }
   if (!tttBoard.includes("")) {
     renderTTT();
-    document.getElementById("ttt-status").innerText = "ম্যাচ ড্র হয়েছে!";
+    document.getElementById("ttt-status").innerText = "ম্যাচ ড্র হয়েছে!";
     finishGameRound();
     return;
   }
@@ -852,299 +852,17 @@ function checkWinner(p) {
   return lines.some(line => line.every(index => tttBoard[index] === p));
 }
 
+// গেম রিসেট বা ইনিশিয়ালাইজ করার ফাংশন
 function resetTTT() {
+  tttBoard = ["", "", "", "", "", "", "", "", ""];
+  tttActive = true;
   if (aiTimer !== null) {
     clearTimeout(aiTimer);
     aiTimer = null;
   }
-  tttBoard = ["", "", "", "", "", "", "", "", ""];
-  tttActive = true;
   document.getElementById("ttt-status").innerText = "আপনার চাল (X)";
   renderTTT();
 }
+
+// প্রথমবার গেম রেন্ডার করার জন্য
 renderTTT();
-
-// --- GAME 2: COIN FLIP ---
-function flipCoin(choice) {
-  const result = Math.random() < 0.5 ? "Head" : "Tail";
-  document.getElementById("coin-anim").innerText = "🪙";
-  if (choice === result) {
-    document.getElementById("coin-status").innerText =
-      `ফলাফল: ${result}! সঠিক অনুমান (+20 coins — claim করুন)`;
-    updatePendingCoins(20);
-  } else {
-    document.getElementById("coin-status").innerText =
-      `ফলাফল: ${result}! ভুল হয়েছে, আবার চেষ্টা করুন।`;
-  }
-  finishGameRound();
-}
-
-// --- GAME 3: GUESS NUMBER ---
-let secretNum = Math.floor(Math.random() * 10) + 1;
-
-function checkGuess() {
-  const input = document.getElementById("guess-input");
-  const val = Number(input.value);
-  if (!Number.isInteger(val) || val < 1 || val > 10) {
-    document.getElementById("guess-status").innerText = "1 theke 10 er moddhe number dao!";
-    return;
-  }
-  if (val === secretNum) {
-    document.getElementById("guess-status").innerText =
-      `সঠিক! সংখ্যাটি ছিল ${secretNum} (+30 coins — claim করুন)`;
-    updatePendingCoins(30);
-    finishGameRound();
-    secretNum = Math.floor(Math.random() * 10) + 1;
-    input.value = "";
-  } else if (val < secretNum) {
-    document.getElementById("guess-status").innerText = "Number ti aro boro, abar try koro.";
-  } else {
-    document.getElementById("guess-status").innerText = "Number ti aro choto, abar try koro.";
-  }
-}
-
-// --- GAME 4: LUCKY DICE ---
-const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-
-function rollDice() {
-  const num = Math.floor(Math.random() * 6) + 1;
-  document.getElementById("dice-face").innerText = diceFaces[num - 1];
-  if (num === 6) {
-    document.getElementById("dice-status").innerText = "ছক্কা (৬)! (+50 coins — claim করুন)";
-    updatePendingCoins(50);
-  } else {
-    document.getElementById("dice-status").innerText = `উঠেছে: ${num}। ছক্কা এলে bonus পাবেন!`;
-  }
-  finishGameRound();
-}
-
-// --- GAME 5: TAP RUSH ---
-let tapCount = 0;
-let tapTimer = 5;
-let tapActive = false;
-let tapInterval = null;
-
-function handleTap() {
-  if (!tapActive && tapTimer === 5) {
-    tapActive = true;
-    tapCount = 1;
-    document.getElementById("tap-count").innerText = tapCount;
-    tapInterval = setInterval(() => {
-      tapTimer--;
-      document.getElementById("tap-timer").innerText = `Time: ${tapTimer}s`;
-      if (tapTimer <= 0) {
-        clearInterval(tapInterval);
-        tapActive = false;
-        let earned = Math.floor(tapCount / 2);
-        updatePendingCoins(earned);
-        document.getElementById("tap-status").innerText =
-          `সময় শেষ! ${tapCount} বার tap করেছেন (+${earned} coins — claim করুন)`;
-        finishGameRound();
-        setTimeout(() => {
-          tapTimer = 5;
-          tapCount = 0;
-          document.getElementById("tap-timer").innerText = "Time: 5s";
-          document.getElementById("tap-count").innerText = "0";
-        }, 2500);
-      }
-    }, 1000);
-  } else if (tapActive) {
-    tapCount++;
-    document.getElementById("tap-count").innerText = tapCount;
-  }
-}
-
-// --- GAME 6: MEMORY MATCH ---
-const memorySymbols = ["🐱", "🍋", "🚀", "⭐", "🎮", "💎"];
-const memoryBoard = document.getElementById("memory-board");
-let memoryCards = [];
-let memoryFlipped = [];
-let memoryMatched = new Set();
-let memoryLocked = false;
-let memoryCompleted = false;
-let memoryTimer = null;
-
-function startMemoryGame() {
-  if (memoryTimer !== null) {
-    clearTimeout(memoryTimer);
-    memoryTimer = null;
-  }
-  memoryCards = [...memorySymbols, ...memorySymbols].map((symbol) => ({ symbol }));
-  for (let index = memoryCards.length - 1; index > 0; index--) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [memoryCards[index], memoryCards[swapIndex]] =
-      [memoryCards[swapIndex], memoryCards[index]];
-  }
-  memoryFlipped = [];
-  memoryMatched = new Set();
-  memoryLocked = false;
-  memoryCompleted = false;
-  document.getElementById("memory-status").textContent =
-    "সব জোড়া মেলালে +60 coins পাবেন।";
-  document.getElementById("memory-restart").textContent = "New Game";
-  renderMemoryBoard();
-}
-
-function renderMemoryBoard() {
-  memoryBoard.replaceChildren();
-  memoryCards.forEach((card, index) => {
-    const button = document.createElement("button");
-    const isVisible = memoryFlipped.includes(index) || memoryMatched.has(index);
-    button.type = "button";
-    button.className = `memory-card${memoryMatched.has(index) ? " matched" : ""}`;
-    button.textContent = isVisible ? card.symbol : "?";
-    button.disabled = memoryLocked || memoryCompleted || memoryMatched.has(index) ||
-      memoryFlipped.includes(index);
-    button.setAttribute(
-      "aria-label",
-      isVisible ? `কার্ড ${index + 1}: ${card.symbol}` : `কার্ড ${index + 1}, ঢাকা`
-    );
-    button.addEventListener("click", () => flipMemoryCard(index));
-    memoryBoard.appendChild(button);
-  });
-}
-
-function flipMemoryCard(index) {
-  if (memoryLocked || memoryCompleted || memoryMatched.has(index) ||
-      memoryFlipped.includes(index)) return;
-  memoryFlipped.push(index);
-
-  if (memoryFlipped.length < 2) {
-    renderMemoryBoard();
-    return;
-  }
-
-  const [first, second] = memoryFlipped;
-  if (memoryCards[first].symbol === memoryCards[second].symbol) {
-    memoryMatched.add(first);
-    memoryMatched.add(second);
-    memoryFlipped = [];
-    if (memoryMatched.size === memoryCards.length) {
-      memoryCompleted = true;
-      updatePendingCoins(60);
-      document.getElementById("memory-status").textContent =
-        "সব জোড়া মিলেছে! +60 coins — Claim করুন।";
-      document.getElementById("memory-restart").textContent = "Play Again";
-      finishGameRound();
-    }
-    renderMemoryBoard();
-    return;
-  }
-
-  memoryLocked = true;
-  renderMemoryBoard();
-  memoryTimer = setTimeout(() => {
-    memoryFlipped = [];
-    memoryLocked = false;
-    memoryTimer = null;
-    renderMemoryBoard();
-  }, 800);
-}
-
-startMemoryGame();
-
-// --- GAME 7: ROCK PAPER SCISSORS ---
-const rpsMoves = {
-  rock: { label: "Rock", emoji: "✊" },
-  paper: { label: "Paper", emoji: "✋" },
-  scissors: { label: "Scissors", emoji: "✌️" }
-};
-
-function playRps(playerMove) {
-  const choices = Object.keys(rpsMoves);
-  const computerMove = choices[Math.floor(Math.random() * choices.length)];
-  const player = rpsMoves[playerMove];
-  const computer = rpsMoves[computerMove];
-  if (!player) return;
-
-  let outcome;
-  if (playerMove === computerMove) {
-    outcome = "ড্র হয়েছে!";
-  } else if (
-    (playerMove === "rock" && computerMove === "scissors") ||
-    (playerMove === "paper" && computerMove === "rock") ||
-    (playerMove === "scissors" && computerMove === "paper")
-  ) {
-    outcome = "আপনি জিতেছেন! +15 coins — Claim করুন।";
-    updatePendingCoins(15);
-  } else {
-    outcome = "কম্পিউটার জিতেছে। আবার চেষ্টা করুন!";
-  }
-
-  document.getElementById("rps-status").textContent =
-    `${player.emoji} বনাম ${computer.emoji} — ${outcome}`;
-  finishGameRound();
-}
-
-// --- GAME 8: QUICK MATH ---
-let mathRound = 1;
-let mathScore = 0;
-let mathAnswer = null;
-let mathActive = false;
-
-function createMathQuestion() {
-  const operators = ["+", "-", "×"];
-  const operator = operators[Math.floor(Math.random() * operators.length)];
-  let first = Math.floor(Math.random() * 12) + 1;
-  let second = Math.floor(Math.random() * 12) + 1;
-  if (operator === "-" && second > first) {
-    [first, second] = [second, first];
-  }
-
-  mathAnswer = operator === "+"
-    ? first + second
-    : operator === "-"
-      ? first - second
-      : first * second;
-  document.getElementById("math-question").textContent =
-    `${first} ${operator} ${second} = ?`;
-}
-
-function startMathChallenge() {
-  mathRound = 1;
-  mathScore = 0;
-  mathActive = true;
-  document.getElementById("math-round").textContent = "Round 1 of 5";
-  document.getElementById("math-status").textContent =
-    "সঠিক উত্তরে +10 coins, মোট ৫টি প্রশ্ন।";
-  document.getElementById("math-answer").value = "";
-  document.getElementById("math-submit").hidden = false;
-  document.getElementById("math-restart").hidden = true;
-  createMathQuestion();
-}
-
-function submitMathAnswer() {
-  const input = document.getElementById("math-answer");
-  const value = input.value.trim();
-  const answer = Number(value);
-  if (!mathActive || value === "" || !Number.isInteger(answer)) {
-    document.getElementById("math-status").textContent = "একটি পূর্ণসংখ্যার উত্তর লিখুন।";
-    return;
-  }
-
-  if (answer === mathAnswer) {
-    mathScore++;
-    updatePendingCoins(10);
-    document.getElementById("math-status").textContent = "সঠিক! +10 coins — Claim করুন।";
-  } else {
-    document.getElementById("math-status").textContent = `ভুল উত্তর। সঠিক উত্তর ছিল ${mathAnswer}।`;
-  }
-
-  if (mathRound === 5) {
-    mathActive = false;
-    document.getElementById("math-round").textContent = "Challenge complete";
-    document.getElementById("math-question").textContent =
-      `আপনার score: ${mathScore}/5`;
-    document.getElementById("math-submit").hidden = true;
-    document.getElementById("math-restart").hidden = false;
-    finishGameRound();
-    return;
-  }
-
-  mathRound++;
-  document.getElementById("math-round").textContent = `Round ${mathRound} of 5`;
-  input.value = "";
-  createMathQuestion();
-}
-
-startMathChallenge();
